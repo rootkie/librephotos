@@ -10,6 +10,7 @@ import pytz
 import datetime
 from bulk_update.helper import bulk_update
 import pandas as pd
+from constance import config as site_config
 
 def cluster_faces(user,inferred=True):
     # for front end cluster visualization
@@ -86,6 +87,9 @@ def train_faces(user, job_id):
         face_stack = []
         columns = ['person','person_label_is_inferred','person_label_probability','id']
         for idx, (face_id, person_id, probability) in enumerate(zip(data['unknown']['id'], pred, probs)):
+            if probability < site_config.FACE_CONFIDENCE:
+                continue
+            
             face = Face.objects.get(id=face_id)
             face.person_id = person_id
             face.person_label_is_inferred = True
